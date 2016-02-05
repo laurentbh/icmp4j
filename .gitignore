@@ -1,0 +1,13 @@
+/build/
+/bin/
+
+.gradle
+
+# Eclipse project files
+.classpath
+.project
+.settings
+
+# commun annoying files
+.DS_Store
+Thumbs.db
