@@ -165,9 +165,12 @@ void icmp4j_exist_free(char* argVersion) {
 
 
 void icmp4j_free(struct Icmp4jStruct* icmp4j) {
-    free(icmp4j->errorMsg);
-    if (icmp4j->address != NULL)
-        free(icmp4j->address);
+    if (icmp4j->errorMsg != NULL) {
+       free(icmp4j->errorMsg);
+    }
+    if (icmp4j->address != NULL) {
+       free(icmp4j->address);
+    }
 }
 
 static void initPing(struct pingStruct *pingData) {
@@ -222,12 +225,10 @@ void icmp4j_start(struct Icmp4jStruct* icmp4j) {
 #endif
     
     
-    //printf("%s at %p [%p]\n", icmp4j->host, &pingData, &icmp4j);
-    //fflush(stdout);
     icmp4j->retCode = 1;
     icmp4j->errorNo = EX_OK;
-    icmp4j->errorMsg = (char*) malloc(sizeof(char) * ERR_MAX_LEN + 1);
     icmp4j->hasTimeout = 0;
+    icmp4j->errorMsg = (char*) malloc(sizeof(char) * ERR_MAX_LEN + 1);
     icmp4j->address = NULL;
     icmp4j->returnTtl = 0;
     icmp4j->rtt = 0;
@@ -469,6 +470,7 @@ static void pr_pack(char *buf, ssize_t cc, struct sockaddr_in *from, struct time
     double triptime;
     ssize_t hlen, recv_len;
     int seq;
+    char tempAd[500];
     
     /* Check the IP header */
     ip = (struct ip *)buf;
@@ -484,11 +486,7 @@ static void pr_pack(char *buf, ssize_t cc, struct sockaddr_in *from, struct time
     cc -= hlen;
     icp = (struct icmp *)(buf + hlen);
     if (icp->icmp_type == pingData->icmp_type_rsp) {
-/*        printf("pack ----> %p seq= %u         rec=%u\n", pingData, pingData->seq, icp->icmp_seq);*/
-/*        fflush(stdout);*/
         if ((icp->icmp_seq != pingData->seq) || (icp->icmp_id != pingData->ident)) {
-/*            printf("not our echo at %p [%d != %d] \n", pingData, icp->icmp_seq, pingData->seq);*/
-/*            fflush(stdout);*/
             return;			/* 'Twas not our ECHO */
         }
         ++pingData->nreceived;
@@ -515,10 +513,9 @@ static void pr_pack(char *buf, ssize_t cc, struct sockaddr_in *from, struct time
         
         icmp4jPtr->address = (char*) malloc(sizeof(char) * strlen(inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr)) + 1);
         strcpy(icmp4jPtr->address, inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr));
+
         icmp4jPtr->returnTtl = ip->ip_ttl;
         icmp4jPtr->rtt = triptime;
-        //printf("at %p [%d]\n", argPing, icmp4jPtr->rtt);
-        //fflush(stdout);
         
         // casting shouldn't be a big deal
         icmp4jPtr->bytes = (int)cc;
@@ -681,6 +678,7 @@ static void pr_icmph(struct Icmp4jStruct *icmp4jPtr, struct icmp *icp) {
                     sprintf(icmp4jPtr->errorMsg, "Time exceeded, Bad Code: %d", icp->icmp_code);
                     break;
             }
+            break;
         case ICMP_PARAMPROB:
             sprintf(icmp4jPtr->errorMsg, "Parameter problem: pointer = 0x%02x", icp->icmp_hun.ih_pptr);
             break;
