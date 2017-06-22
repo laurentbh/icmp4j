@@ -1,5 +1,7 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
+import org.gradle.internal.os.OperatingSystem;
+allprojects {
+    apply plugin: 'java'
+}
 
 sourceCompatibility = 1.6
 version = '1.0'
@@ -21,7 +23,22 @@ dependencies {
 }
 
 test {
-    systemProperties 'property': 'value'
+    testLogging {
+        events 'started', 'passed'
+    }
+    exclude 'org/icmp4j/platform/linux/LinuxNativeBridgeTest.class'
+}
+
+// Test Structure
+
+task runTestsRoot(type: Test, dependsOn: testClasses) {
+    testLogging {
+        events 'started', 'passed'
+    }
+
+    include 'org/icmp4j/platform/linux/*.class'
+
+    executable = 'sudo'
 }
 
 uploadArchives {
@@ -30,4 +47,58 @@ uploadArchives {
            dirs 'repos'
        }
     }
+}
+
+task lol {
+	println System.getenv("JAVA_HOME")
+	println System.properties['java.home']
+	def jdkHome = System.getenv("JAVA_HOME")
+	println System.properties['java.home']
+    doLast {
+        if (OperatingSystem.current().isMacOsX()) {
+            println("running on OSX")
+        } else if (OperatingSystem.current().isLinux()) {
+            println("running onLinux");
+        }
+    }   
+}
+task fullJar(type: Jar) {
+    baseName = project.name + '-all'
+    sourceSets { 
+        main { 
+            java {
+                srcDir 'src/main/java'
+            }
+            resources { 
+                srcDir 'src/main/resources/platform/unix/release/' 
+                include '*.so'
+                include '*.dylib'
+            } 
+        } 
+    }
+    destinationDir = file("${buildDir}/libs")
+    from sourceSets.main.output
+}
+
+task androidJar(type: Jar) {
+    description 'minimal jar for android'
+    baseName = project.name + '-android'
+    destinationDir = file("${buildDir}/libs")
+    from sourceSets.main.output
+    exclude 'org/icmp4j/platform/java'
+    exclude 'org/icmp4j/platform/unix'
+    exclude 'org/icmp4j/platform/windows'
+    exclude '*.dylib'
+    exclude '*.so'
+}
+
+jar {
+    from sourceSets.main.output
+    exclude '*.dylib'
+    exclude '*.so'
+}
+
+task runRoot (type: Exec, dependsOn: jar) {
+    executable 'sudo'
+    args  '-l "java -cp junit-4.12.jar:hamcrest-core-1.3.jar:icmp4j.jar -Djava.library.path=. org.junit.runner.JUnitCore org.icmp4j.platform.IcmpTraceRouteUtilTest"'
 }
