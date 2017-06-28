@@ -1,11 +1,11 @@
 package org.icmp4j.util;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.io.File;
-
 import org.icmp4j.exception.AssertRuntimeException;
 import org.icmp4j.logger.Logger;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * ShortPasta Foundation
@@ -66,6 +66,8 @@ public class JniUtil {
 
 		// the library has not yet been loaded: load it
 		boolean isLoaded = false;
+
+		logger.info("Current value of java.library.path: [" + System.getProperty("java.library.path") + "]");
 
 		// try to load from the java.library.path
 		logger.info ("loadLibrary trying to load " + libraryName + " from java.library.path");

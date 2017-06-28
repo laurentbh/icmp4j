@@ -1,12 +1,11 @@
 package org.icmp4j.util;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.io.File;
-
 import com.sun.jna.Native;
-
 import org.icmp4j.logger.Logger;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ShortPasta Foundation
@@ -143,6 +142,8 @@ public class JnaUtil {
 
     // handle exceptions
     try {
+
+      logger.info("Current value of jna.library.path: [" + System.getProperty("jna.library.path") + "]");
 
       // try to load from the java.library.path
       logger.info ("loadLibrary2 ()");
