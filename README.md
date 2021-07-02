@@ -1,8 +1,9 @@
 # icmp4j
 
-# under construction !!#
-please check
-https://sourceforge.net/projects/icmp4j/?source=typ_redirect
+# Not latest and not maintained !
+this is an old copy of [icmp4j](https://sourceforge.net/projects/icmp4j/?source=typ_redirect)
+
+***
 
 
 
